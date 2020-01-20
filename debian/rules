@@ -1,0 +1,15 @@
+#!/usr/bin/make -f
+
+export PYBUILD_NAME=ndg-httpsclient
+
+%:
+	dh $@ --with python3 --buildsystem=pybuild
+
+override_dh_auto_test:
+	OLDDIR=$$PWD && cd ndg/httpsclient/test; \
+	  openssl s_server -www -cert pki/localhost.crt \
+	          -key pki/localhost.key -accept 4443 & \
+	  S=$$! ; \
+	  cd $$OLDDIR; \
+	  PYTHONPATH=. python ndg/httpsclient/test/test_urllib2.py ; \
+	  kill $$S
